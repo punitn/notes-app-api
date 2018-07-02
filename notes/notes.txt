@@ -1,0 +1,117 @@
+
+aws cognito-idp sign-up \
+  --region us-east-1 \
+  --client-id 2o8hib479sp1165i51b21jk1en \
+  --username admin@example.com \
+  --password Passw0rd!
+
+
+
+aws cognito-idp admin-confirm-sign-up \
+  --region us-east-1 \
+  --user-pool-id us-east-1_oJdhDytRy \
+  --username admin@example.com
+
+
+noteid: e372add0-7d41-11e8-a7b4-b7053c584f67
+
+
+identity pool id - us-east-1:3c52c897-552f-4e42-9cc3-57714762ce4b
+
+Serverless: Stack update finished...
+Service Information
+service: notes-app-api
+stage: prod
+region: us-east-1
+stack: notes-app-api-prod
+api keys:
+  None
+endpoints:
+  POST - https://k3iubvr0y6.execute-api.us-east-1.amazonaws.com/prod/notes
+  GET - https://k3iubvr0y6.execute-api.us-east-1.amazonaws.com/prod/notes/{id}
+  GET - https://k3iubvr0y6.execute-api.us-east-1.amazonaws.com/prod/notes
+  PUT - https://k3iubvr0y6.execute-api.us-east-1.amazonaws.com/prod/notes/{id}
+  DELETE - https://k3iubvr0y6.execute-api.us-east-1.amazonaws.com/prod/notes/{id}
+functions:
+  create: notes-app-api-prod-create
+  get: notes-app-api-prod-get
+  list: notes-app-api-prod-list
+  update: notes-app-api-prod-update
+  delete: notes-app-api-prod-delete
+
+
+
+
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "mobileanalytics:PutEvents",
+        "cognito-sync:*",
+        "cognito-identity:*"
+      ],
+      "Resource": [
+        "*"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:*"
+      ],
+      "Resource": [
+        "arn:aws:s3:::notes-app-uploads-pond/private/${cognito-identity.amazonaws.com:sub}/*"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "execute-api:Invoke"
+      ],
+      "Resource": [
+        "arn:aws:execute-api:us-east-1:*:k3iubvr0y6/*"
+      ]
+    }
+  ]
+}
+
+
+
+
+npx aws-api-gateway-cli-test \
+--username='admin@example.com' \
+--password='Passw0rd!' \
+--user-pool-id='us-east-1_oJdhDytRy' \
+--app-client-id='2o8hib479sp1165i51b21jk1en' \
+--cognito-region='us-east-1' \
+--identity-pool-id='us-east-1:3c52c897-552f-4e42-9cc3-57714762ce4b' \
+--invoke-url='https://k3iubvr0y6.execute-api.us-east-1.amazonaws.com/prod' \
+--api-gateway-region='us-east-1' \
+--path-template='/notes' \
+--method='POST' \
+--body='{"content":"hello world","attachment":"hello.jpg"}'
+
+
+
+Client app - s3 bucket 
+Name - notes-app-client-pond
+Endpoint - http://notes-app-client-pond.s3-website-us-east-1.amazonaws.com
+
+Cloudfront 
+domain name -	d2z1ad4pjzi64m.cloudfront.net
+distributionid  - EGJJX7YPHEHH4
+www distributionid - E1Y2J5G8UHCJTW
+
+Invalidate cache - 
+aws cloudfront create-invalidation --distribution-id E1Y2J5G8UHCJTW --paths "/*"
+
+
+
+"predeploy": "npm run build",
+"deploy": "aws s3 sync build/ s3://notes-app-client-pond --delete",
+"postdeploy": "aws cloudfront create-invalidation --distribution-id EGJJX7YPHEHH4 --paths '/*' && aws cloudfront create-invalidation --distribution-id E1Y2J5G8UHCJTW --paths '/*'",
+
+
+
